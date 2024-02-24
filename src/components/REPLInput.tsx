@@ -47,7 +47,7 @@ export function REPLInput(props: REPLInputProps) {
       {/* TODO WITH TA: Build a handleSubmit function that increments count and displays the text in the button */}
       {/* TODO: Currently this button just counts up, can we make it push the contents of the input box to the history?*/}
       <button onClick={() => handleSubmit(commandString)}>
-        Submitted {count} times
+        Submitted {count} times!
       </button>
     </div>
   );
