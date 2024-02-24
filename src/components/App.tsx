@@ -19,10 +19,6 @@ function App() {
       {isLoggedIn && <REPL />}
     </div>
   );
-
-  {
-    /* hello */
-  }
 }
 
 export default App;
