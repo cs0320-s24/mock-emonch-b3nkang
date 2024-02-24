@@ -22,6 +22,7 @@ export function REPLInput(props: REPLInputProps) {
     setCount(count + 1);
     console.log(count);
     props.setHistory([...props.history, commandString]);
+    setCommandString("");
   }
   // TODO: Once it increments, try to make it push commands... Note that you can use the `...` spread syntax to copy what was there before
   // add to it with new commands.
@@ -45,8 +46,8 @@ export function REPLInput(props: REPLInputProps) {
       </fieldset>
       {/* TODO WITH TA: Build a handleSubmit function that increments count and displays the text in the button */}
       {/* TODO: Currently this button just counts up, can we make it push the contents of the input box to the history?*/}
-      <button onClick={handleSubmit(commandString)}>
-        Submitted {count} times
+      <button onClick={() => handleSubmit(commandString)}>
+        Submitted {count} times!
       </button>
     </div>
   );
