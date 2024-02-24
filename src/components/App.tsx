@@ -6,6 +6,10 @@ import REPL from './REPL';
 /**
  * This is the highest level component!
  */
+/**
+ * Doc 
+ * @returns 
+ */
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
