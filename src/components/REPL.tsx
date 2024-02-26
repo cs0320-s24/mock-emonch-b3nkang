@@ -4,10 +4,10 @@ import { REPLHistory } from "./REPLHistory";
 import { REPLInput } from "./REPLInput";
 
 export default function REPL() {
-  const [history, setHistory] = useState<string[]>([]);
-  const [mode, setMode] = useState('brief'); // Added mode state
+  const [history, setHistory] = useState<(string | JSX.Element)[]>([]);
+  const [mode, setMode] = useState('brief');
+  const [currentDataset, setCurrentDataset] = useState<string[][]>([]);
 
-  // Function to toggle between 'brief' and 'verbose' modes
   const switchMode = () => {
     setMode(mode === 'brief' ? 'verbose' : 'brief');
   };
@@ -16,7 +16,13 @@ export default function REPL() {
     <div className="repl">
       <REPLHistory history={history} />
       <hr></hr>
-      <REPLInput history={history} setHistory={setHistory} mode={mode} switchMode={switchMode} />
+      <REPLInput 
+        history={history} 
+        setHistory={setHistory} 
+        mode={mode} 
+        switchMode={switchMode} 
+        setCurrentDataset={setCurrentDataset} 
+        currentDataset={currentDataset} />
     </div>
   );
 }
