@@ -48,25 +48,35 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
   const [count, setCount] = useState<number>(0);
 
   // Function to search dataset based on column and value
-  function searchDataset(column, value) {
+  function searchDataset(column, value, isVerbose = false) {
     const columnIndex = isNaN(column)
       ? currentDataset[0].map(colName => colName.toLowerCase()).indexOf(column.toLowerCase())
       : parseInt(column);
-
+  
     if (columnIndex === -1 || columnIndex >= currentDataset[0].length) {
-      setHistory([...history, `Error: Column "${column}" not found`]);
+      const errorMessage = isVerbose
+        ? `Command: search ${column} ${value}\nOutput: Error: Column "${column}" not found`
+        : `Error: Column "${column}" not found`;
+      setHistory([...history, errorMessage]);
       return;
     }
-
+  
     const filteredRows = currentDataset.filter((row, index) => {
       return index !== 0 && row[columnIndex].toString().toLowerCase().includes(value.toLowerCase());
     });
-
+  
     if (filteredRows.length === 0) {
-      setHistory([...history, `No results found for "${value}" in column "${column}"`]);
+      const noResultsMessage = isVerbose
+        ? `Command: search ${column} ${value}\nOutput: No results found for "${value}" in column "${column}"`
+        : `No results found for "${value}" in column "${column}"`;
+      setHistory([...history, noResultsMessage]);
     } else {
-      // Render the matching rows without the header
-      setHistory([...history, ...filteredRows.map((row) => row.join(' '))]);
+      if (isVerbose) {
+        const searchResultsMessage = `Command: search ${column} ${value}\nOutput:`;
+        setHistory([...history, searchResultsMessage, ...filteredRows.map(row => row.join(' '))]);
+      } else {
+        setHistory([...history, ...filteredRows.map(row => row.join(' '))]);
+      }
     }
   }
 
@@ -74,32 +84,46 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
   function handleSubmit(commandString: string) {
     const trimmedCommand = commandString.trim().toLowerCase();
     setCount(count + 1);
-
+  
     const args = trimmedCommand.split(" ");
-    if (args[0] === "load_file") {
-      const filePath = args[1]; // Extract file path from the command
+    const command = args[0];
+    const isVerbose = mode === 'verbose';
+  
+    if (command === "load_file") {
+      const filePath = args[1];
       if (mockedDatasets[filePath]) {
-        setCurrentDataset(mockedDatasets[filePath]); // Set the current dataset based on the file path
-        const loadFileMessage = `Loaded dataset from ${filePath}`;
+        setCurrentDataset(mockedDatasets[filePath]);
+        const loadFileMessage = isVerbose
+          ? `Command: load_file ${filePath}\nOutput: Loaded dataset from ${filePath}`
+          : `Loaded dataset from ${filePath}`;
         setHistory([...history, loadFileMessage]);
       } else {
-        setHistory([...history, `Error: File not found at ${filePath}`]);
+        const errorMessage = isVerbose
+          ? `Command: load_file ${filePath}\nOutput: Error - File not found at ${filePath}.`
+          : `Error: File not found at ${filePath}`;
+        setHistory([...history, errorMessage]);
       }
-    } else if (trimmedCommand === "mode") {
+    } else if (command === "mode") {
       switchMode();
       const modeSwitchMessage = `Switched to ${mode === 'brief' ? 'verbose' : 'brief'} mode`;
       setHistory([...history, modeSwitchMessage]);
-    } else if (trimmedCommand === "view") {
+    } else if (command === "view") {
       const tableJSX = renderTable(currentDataset);
-      setHistory([...history, tableJSX]);
-    } else if (args[0] === "search" && args.length >= 3) {
+      if (isVerbose) {
+        setHistory([...history, <>Command: view<br />Output: {tableJSX}</>]);
+      } else {
+        setHistory([...history, tableJSX]);
+      }
+    } else if (command === "search" && args.length >= 3) {
       const column = args[1];
-      const value = args.slice(2).join(" "); // Support values with spaces
-      searchDataset(column, value);
+      const value = args.slice(2).join(" ");
+      if (isVerbose) {
+        searchDataset(column, value, true); 
+      } else {
+        searchDataset(column, value);
+      }
     } else {
-      const output = mode === 'verbose'
-            ? `Command: ${trimmedCommand}\nOutput: ${trimmedCommand}`
-            : trimmedCommand;
+      const output = trimmedCommand;
       setHistory([...history, output]);
     }
     setCommandString(""); // Clear the input field after submission
