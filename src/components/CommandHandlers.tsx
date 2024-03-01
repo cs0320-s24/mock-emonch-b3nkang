@@ -72,8 +72,16 @@ const mode: REPLFunction = (args, { currentMode, setMode }) => {
  */
 const view: REPLFunction = (args, { currentDataset, currentMode }) => {
   console.log("View command executed", { currentDataset, currentMode });
-  const tableJSX = renderTable(currentDataset);
+
   const isVerbose = currentMode === "verbose";
+
+  if (currentDataset.length === 0 || currentDataset[0].length === 0) {
+    if (isVerbose) {
+      return `Command: view\nOutput: error, dataset not loaded for view`;
+    } else return "Error: dataset not loaded for view";
+  }
+
+  const tableJSX = renderTable(currentDataset);
 
   if (isVerbose) {
     return (
@@ -109,6 +117,13 @@ const search: REPLFunction = (
   const [column, ...valueParts] = args;
   const value = valueParts.join(" ");
   const isVerbose = currentMode === "verbose";
+
+  console.log("search entry", { currentDataset, currentMode });
+  if (!currentDataset || currentDataset.length === 0) {
+    if (isVerbose) {
+      return `Command: search\nOutput: error, dataset not loaded for search`;
+    } else return "Error: dataset not loaded for search";
+  }
 
   const columnIndex = isNaN(Number(column))
     ? currentDataset[0]
