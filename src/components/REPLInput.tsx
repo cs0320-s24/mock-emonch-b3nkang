@@ -3,6 +3,9 @@ import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
 import { commandHandlers } from "./CommandHandlers";
 
+/**
+ * an interface of all the props necessary to run REPLInput and their typings
+ */
 interface REPLInputProps {
   history: (string | JSX.Element)[];
   setHistory: Dispatch<SetStateAction<(string | JSX.Element)[]>>;
@@ -44,6 +47,12 @@ const mockedDatasets = {
 //   );
 // } // i moved this to CommandHandlers
 
+/**
+ * the REPLInput component
+ *
+ * @param param0 the set of props taken in by REPLInput
+ * @returns the component itself
+ */
 export default function REPLInput({
   history,
   setHistory,
@@ -63,6 +72,11 @@ export default function REPLInput({
     currentDataset,
   };
 
+  /**
+   * A function to handle what happens after the submit button is pressed
+   *
+   * @param commandString the raw string input from the input form
+   */
   function handleSubmit(commandString: string) {
     const trimmedCommand = commandString.trim().toLowerCase();
     const [command, ...args] = trimmedCommand.split(" ");
@@ -106,6 +120,8 @@ export default function REPLInput({
     </div>
   );
 }
+
+// // pre-user story 6 implementation
 // export function REPLInput({
 //   history,
 //   setHistory,

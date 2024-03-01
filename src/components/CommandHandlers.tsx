@@ -1,6 +1,12 @@
 import { Dispatch, SetStateAction } from "react";
 import { REPLFunction } from "./REPLFunction";
 
+/**
+ * A method that renders an HTML table, given a parsed sheet
+ *
+ * @param dataset the parsed sheet
+ * @returns the HTML table
+ */
 function renderTable(dataset: string[][]) {
   return (
     <table>
@@ -17,6 +23,13 @@ function renderTable(dataset: string[][]) {
   );
 }
 
+/**
+ * a handler for the 'load' command
+ *
+ * @param args the parameter provided alongside 'load_file' command in the REPL
+ * @param param1 a set of all the params we want to extract from the `context` interface to use
+ * @returns a message to be added into history
+ */
 const load: REPLFunction = (
   args,
   { mockedDatasets, setCurrentDataset, setHistory, currentMode }
@@ -37,12 +50,26 @@ const load: REPLFunction = (
   }
 };
 
+/**
+ * a handler for the 'mode' command
+ *
+ * @param args the parameter provided alongside 'mode' command in the REPL (none here, hence why arg not used)
+ * @param param1 a set of all the params we want to extract from the `context` interface to use
+ * @returns a message to be added into history
+ */
 const mode: REPLFunction = (args, { currentMode, setMode }) => {
   const newMode = currentMode === "brief" ? "verbose" : "brief";
   setMode(newMode);
   return `Command: mode\nOutput: Switched to ${newMode} mode`;
 };
 
+/**
+ * a handler for the 'view' command
+ *
+ * @param args the parameter provided alongside 'view' command in the REPL (none here, hence why arg not used)
+ * @param param1 a set of all the params we want to extract from the `context` interface to use
+ * @returns a message to be added into history
+ */
 const view: REPLFunction = (args, { currentDataset, currentMode }) => {
   console.log("View command executed", { currentDataset, currentMode });
   const tableJSX = renderTable(currentDataset);
@@ -60,6 +87,13 @@ const view: REPLFunction = (args, { currentDataset, currentMode }) => {
   }
 };
 
+/**
+ * a handler for the 'search' command
+ *
+ * @param args the parameters provided alongside 'search' command in the REPL (i.e. column and search value here)
+ * @param param1 a set of all the params we want to extract from the `context` interface to use (with explicit typing to satisfy typescript here)
+ * @returns a message to be added into history
+ */
 const search: REPLFunction = (
   args,
   {
