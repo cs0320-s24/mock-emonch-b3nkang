@@ -21,6 +21,9 @@ test("main.zero() should return 0", () => {
   expect(main.zero()).toBe(0);
 });
 
+/**
+ * basic test for mode
+ */
 test("mode command", async ({}) => {
   const context = {
     setHistory: () => {},
@@ -34,7 +37,10 @@ test("mode command", async ({}) => {
   expect(context.currentMode).toBe("brief");
 });
 
-test("load command with valid file path", async ({}) => {
+/**
+ * test load with valid filepath
+ */
+test("load command with valid filepath", async ({}) => {
   const args = ["path1"];
   const context = {
     mockedDatasets: { path1: [["bye"], ["byebye"]] },
@@ -47,6 +53,9 @@ test("load command with valid file path", async ({}) => {
   expect(result).toContain("Loaded dataset from path1");
 });
 
+/**
+ * test load with invalid filepath
+ */
 test("load command with invalid file path", async ({}) => {
   const args = ["hi"];
   const context = {
@@ -60,6 +69,9 @@ test("load command with invalid file path", async ({}) => {
   expect(result).toContain("Error: File not found at hi");
 });
 
+/**
+ * test view with load already called
+ */
 test("view command with loading data", async ({}) => {
   const context = {
     mockedDatasets: { path1: [["viewbye"], ["viewbyeviewbye"]] },
@@ -78,6 +90,9 @@ test("view command with loading data", async ({}) => {
   expect(JSON.stringify(viewResult)).toContain("viewbyeviewbye");
 });
 
+/**
+ * test view with load not called
+ */
 test("view command without loading data", async ({}) => {
   const context = {
     mockedDatasets: { path1: [["viewbye"], ["viewbyeviewbye"]] },
@@ -94,6 +109,9 @@ test("view command without loading data", async ({}) => {
   expect(JSON.stringify(viewResult)).not.toContain("viewbyeviewbye");
 });
 
+/**
+ * test search with load already called
+ */
 test("search command with loading data", async ({}) => {
   const context = {
     mockedDatasets: {
@@ -129,6 +147,9 @@ test("search command with loading data", async ({}) => {
   expect(negativeResultString).toContain("No results found for");
 });
 
+/**
+ * test search with load not called
+ */
 test("search command without loading data", async ({}) => {
   const context = {
     mockedDatasets: {
