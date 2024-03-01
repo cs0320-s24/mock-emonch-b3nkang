@@ -16,7 +16,7 @@ The csvs are parsed (parser is not implemented, we are just supplying the raw da
 # Errors/Bugs
 
 - Perhaps less-so a bug and more an issue in general, we've tried to abstract as much away from the big `if-else` in `REPLInput`'s `handleSubmit()` by implementing the strategy pattern via `CommandHandlers.tsx`, but there are still a few dependencies - new handlers which require new props will still need to be added to the `REPLInput.tsx` props interface at the end of the day.
-- TBD. More bugs to be added as further tests are implemented.
+- Cell values in a sheet with spaces in between - because this isn't an implementation of parser or the backend in general, this behavior we consciously did not test for or account for.
 
 # Tests
 

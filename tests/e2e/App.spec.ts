@@ -12,50 +12,221 @@ import { expect, test } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
   // ... you'd put it here.
   await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
 });
 
-// test("on page load, i dont see the input box until login", async ({ page }) => {
-//   // Notice: http, not https! Our front-end is not set up for HTTPs.
-//   await page.goto("http://localhost:8000/");
-//   await expect(page.getByLabel("Sign Out")).not.toBeVisible();
-//   await expect(page.getByLabel("Command input")).not.toBeVisible();
-
-//   // click the login button
-//   await page.getByLabel("Login").click();
-//   await expect(page.getByLabel("Sign Out")).toBeVisible();
-//   await expect(page.getByLabel("Command input")).toBeVisible();
+// // code below from gearup
+// test("on page load, i dont see the input box until pressing login", async ({
+//   page,
+// }) => {
+//   await expect(page.getByLabel("Login")).toBeVisible();
+//   await expect(page.locator(".repl")).not.toBeVisible();
 // });
 
-test("on page load, i dont see the input box until pressing login", async ({
-  page,
-}) => {
-  await expect(page.getByLabel("Login")).toBeVisible();
-  await expect(page.locator(".repl")).not.toBeVisible();
-});
+// test("after login, the repl is now visible", async ({ page }) => {
+//   await page.getByLabel("Login").click();
+//   await expect(page.locator(".repl")).toBeVisible();
+// });
 
-test("after login, the repl is now visible", async ({ page }) => {
-  await page.getByLabel("Login").click();
-  await expect(page.locator(".repl")).toBeVisible();
-});
-
-test("after login, i can switch modes between verbose and brief", async ({
-  page,
-}) => {
-  await page.getByLabel("Login").click();
+test("i can switch modes between verbose and brief", async ({ page }) => {
   await page.getByLabel("Command input").fill("mode");
   await page.getByRole("button", { name: "Submit Command" }).click();
-  await expect(page.getByText("Command: mode")).toBeVisible();
-  await expect(page.getByText("Output: Switched to verbose")).toBeVisible();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Command: mode"
+  );
+  await expect(page.locator('[data-index="history-output-0"]')).toContainText(
+    "Output: Switched to verbose"
+  );
+
+  await page.getByLabel("Command input").fill("mode");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-1"]')).toContainText(
+    "Command: mode"
+  );
+  await expect(page.locator('[data-index="history-output-1"]')).toContainText(
+    "Output: Switched to brief"
+  );
 });
 
-test("after login, i can load a CSV file and view data", async ({ page }) => {
-  await page.getByLabel("Login").click();
-  await page.getByLabel("Command input").fill("load_file path1.csv");
+test("i can load a CSV file and view data", async ({ page }) => {
+  await page.getByLabel("Command input").fill("load_file path1");
   await page.getByRole("button", { name: "Submit Command" }).click();
-  // to do
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Loaded dataset from path1"
+  );
+
+  await page.getByLabel("Command input").fill("view");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.getByRole("table")).toBeVisible();
+});
+
+test("i get a useful error if i try loading nonexistent data", async ({
+  page,
+}) => {
+  await page.getByLabel("Command input").fill("load_file hi");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Error: File not found at hi"
+  );
+});
+
+test("i get a useful error if i view unloaded data", async ({ page }) => {
+  await page.getByLabel("Command input").fill("view");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Error: dataset not loaded for view"
+  );
+});
+
+test("i can load a CSV file and search existent data with column INDEX, without viewing it", async ({
+  page,
+}) => {
+  await page.getByLabel("Command input").fill("load_file path2");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Loaded dataset from path2"
+  );
+
+  await page.getByLabel("Command input").fill("search 2 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-1"]')).toContainText(
+    "Data4 Data5 Data6"
+  );
+  await expect(page.locator('[data-index="history-command-2"]')).toContainText(
+    "Data4 Data7 Data6"
+  );
+});
+
+test("i can load a CSV file and search existent data with column NAME, without viewing it", async ({
+  page,
+}) => {
+  await page.getByLabel("Command input").fill("load_file path2");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Loaded dataset from path2"
+  );
+
+  await page.getByLabel("Command input").fill("search Header3 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-1"]')).toContainText(
+    "Data4 Data5 Data6"
+  );
+  await expect(page.locator('[data-index="history-command-2"]')).toContainText(
+    "Data4 Data7 Data6"
+  );
+});
+
+test("i can load a CSV file and search existent data with WRONG column name, without viewing it", async ({
+  page,
+}) => {
+  await page.getByLabel("Command input").fill("load_file path2");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Loaded dataset from path2"
+  );
+
+  await page.getByLabel("Command input").fill("search Header2 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-1"]')).toContainText(
+    "No results found for"
+  );
+});
+
+test("i get a useful error if i search unloaded data", async ({ page }) => {
+  await page.getByLabel("Command input").fill("search 1 hi");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Error: dataset not loaded for search"
+  );
+});
+
+test("i can do EVERYTHING: view and search before loading (gets errors), load a nonexistent CSV file, load an existing file, view it, and search existent AND nonexistent data with column name and index", async ({
+  page,
+}) => {
+  // unloaded view
+  await page.getByLabel("Command input").fill("view");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-0"]')).toContainText(
+    "Error: dataset not loaded for view"
+  );
+
+  // unloaded search
+  await page.getByLabel("Command input").fill("search 1 hi");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-1"]')).toContainText(
+    "Error: dataset not loaded for search"
+  );
+
+  // load malformed filepath
+  await page.getByLabel("Command input").fill("load_file hii");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-2"]')).toContainText(
+    "Error: File not found at hii"
+  );
+
+  // load formed filepaht
+  await page.getByLabel("Command input").fill("load_file path2");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-3"]')).toContainText(
+    "Loaded dataset from path2"
+  );
+
+  // view loaded file
+  await page.getByLabel("Command input").fill("view");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.getByRole("table")).toBeVisible();
+
+  // search loaded file in wrong column
+  await page.getByLabel("Command input").fill("search Header2 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-5"]')).toContainText(
+    "No results found for"
+  );
+
+  // search loaded file in correct column with NAME
+  await page.getByLabel("Command input").fill("search Header3 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-6"]')).toContainText(
+    "Data4 Data5 Data6"
+  );
+  await expect(page.locator('[data-index="history-command-7"]')).toContainText(
+    "Data4 Data7 Data6"
+  );
+
+  // search loaded file in correct column with INDEX
+  await page.getByLabel("Command input").fill("search 2 Data6");
+  await page.getByRole("button", { name: "Submit Command" }).click();
+
+  await expect(page.locator('[data-index="history-command-8"]')).toContainText(
+    "Data4 Data5 Data6"
+  );
+  await expect(page.locator('[data-index="history-command-9"]')).toContainText(
+    "Data4 Data7 Data6"
+  );
 });
 
 // npx playwright codegen http://localhost:8000/
+// npm run test:e2e
 
 // /**
 //  * Don't worry about the "async" yet. We'll cover it in more detail
