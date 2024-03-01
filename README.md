@@ -43,3 +43,4 @@ Ensure you have the requisite dependencies installed. Then, type `npm start` to 
 _(state all of your sources of collaboration past your project partner. Please refer to the course's collaboration policy for any further questions.)_
 
 None on Ben's end, other than using EdStem and lecture/gearup/course content.
+None on Enno's end either, other than using EdStem and lecture/gearup/ course content. 
