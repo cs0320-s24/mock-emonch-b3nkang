@@ -16,11 +16,18 @@ The csvs are parsed (parser is not implemented, we are just supplying the raw da
 # Errors/Bugs
 
 - Perhaps less-so a bug and more an issue in general, we've tried to abstract as much away from the big `if-else` in `REPLInput`'s `handleSubmit()` by implementing the strategy pattern via `CommandHandlers.tsx`, but there are still a few dependencies - new handlers which require new props will still need to be added to the `REPLInput.tsx` props interface at the end of the day.
-- TBD. More bugs to be added as further tests are implemented.
+- Cell values in a sheet with spaces in between - because this isn't an implementation of parser or the backend in general, this behavior we consciously did not test for or account for.
 
 # Tests
 
-TBD.
+The testing suite mainly comprises tests for the various command handlers and permutations of their behavior depending on the given input. There are a whole host of unit tests to test all sorts of handler behavior in `basic-example.spec.ts`, such as searching without a loaded csv, calling load with an invalid filepath, or searching with weirdly-formed csv data. In addition, there is a full end-to-end testing suite in `App.spec.ts` in the `e2e` dir which runs the website, headless, with various testing automations, such as converting between `verbose` and `brief` and running a full flow of commands beginning with error-bound `load_file` and `view` all the way to `search` on a loaded csv.
+
+to run tests, use
+
+- `npm run test` to run all tests
+- `npm run test:e2e` to run only the end-to-end tests
+- `npm run test:unit` to run only the unit tests
+- `npx playwright show-report` to get a more detailed report on your tests
 
 # How to...
 
