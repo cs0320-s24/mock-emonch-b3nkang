@@ -187,3 +187,26 @@ test("search command without loading data", async ({}) => {
     "Error: dataset not loaded for search"
   );
 });
+
+/**
+ * test search with weirdly shaped csv
+ */
+test("search command with weirdly shaped loading data", async ({}) => {
+  const context = {
+    mockedDatasets: {
+      path1: [[], [], []],
+    },
+    setCurrentDataset: (dataset) => (context.currentDataset = dataset),
+    setHistory: () => {},
+    currentMode: "brief",
+    currentDataset: [],
+  };
+
+  commandHandlers.load_file(["path1"], context);
+  const searchArgs = ["Fee", "Ho"];
+  const searchResult = commandHandlers.search(searchArgs, context);
+  const resultString = JSON.stringify(searchResult);
+
+  expect(resultString).not.toContain("Ho");
+  expect(resultString).not.toContain("Hum");
+});
