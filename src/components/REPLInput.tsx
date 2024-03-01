@@ -11,7 +11,7 @@ interface REPLInputProps {
   currentDataset: string[][];
 }
 
-// Mocked datasets 
+// Mocked datasets
 const mockedDatasets = {
   "/path/to/dataset1.csv": [
     ["Column1", "Column2", "Column3"],
@@ -43,16 +43,25 @@ function renderTable(dataset: string[][]) {
   );
 }
 
-export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDataset, currentDataset }: REPLInputProps) {
+export function REPLInput({
+  history,
+  setHistory,
+  mode,
+  switchMode,
+  setCurrentDataset,
+  currentDataset,
+}: REPLInputProps) {
   const [commandString, setCommandString] = useState<string>("");
   const [count, setCount] = useState<number>(0);
 
   // Function to search dataset based on column and value
   function searchDataset(column, value, isVerbose = false) {
     const columnIndex = isNaN(column)
-      ? currentDataset[0].map(colName => colName.toLowerCase()).indexOf(column.toLowerCase())
+      ? currentDataset[0]
+          .map((colName) => colName.toLowerCase())
+          .indexOf(column.toLowerCase())
       : parseInt(column);
-  
+
     if (columnIndex === -1 || columnIndex >= currentDataset[0].length) {
       const errorMessage = isVerbose
         ? `Command: search ${column} ${value}\nOutput: Error: Column "${column}" not found`
@@ -60,11 +69,14 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
       setHistory([...history, errorMessage]);
       return;
     }
-  
+
     const filteredRows = currentDataset.filter((row, index) => {
-      return index !== 0 && row[columnIndex].toString().toLowerCase().includes(value.toLowerCase());
+      return (
+        index !== 0 &&
+        row[columnIndex].toString().toLowerCase().includes(value.toLowerCase())
+      );
     });
-  
+
     if (filteredRows.length === 0) {
       const noResultsMessage = isVerbose
         ? `Command: search ${column} ${value}\nOutput: No results found for "${value}" in column "${column}"`
@@ -73,22 +85,25 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
     } else {
       if (isVerbose) {
         const searchResultsMessage = `Command: search ${column} ${value}\nOutput:`;
-        setHistory([...history, searchResultsMessage, ...filteredRows.map(row => row.join(' '))]);
+        setHistory([
+          ...history,
+          searchResultsMessage,
+          ...filteredRows.map((row) => row.join(" ")),
+        ]);
       } else {
-        setHistory([...history, ...filteredRows.map(row => row.join(' '))]);
+        setHistory([...history, ...filteredRows.map((row) => row.join(" "))]);
       }
     }
   }
 
-  
   function handleSubmit(commandString: string) {
     const trimmedCommand = commandString.trim().toLowerCase();
     setCount(count + 1);
-  
+
     const args = trimmedCommand.split(" ");
     const command = args[0];
-    const isVerbose = mode === 'verbose';
-  
+    const isVerbose = mode === "verbose";
+
     if (command === "load_file") {
       const filePath = args[1];
       if (mockedDatasets[filePath]) {
@@ -105,12 +120,21 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
       }
     } else if (command === "mode") {
       switchMode();
-      const modeSwitchMessage = `Switched to ${mode === 'brief' ? 'verbose' : 'brief'} mode`;
+      const modeSwitchMessage = `Switched to ${
+        mode === "brief" ? "verbose" : "brief"
+      } mode`;
       setHistory([...history, modeSwitchMessage]);
     } else if (command === "view") {
       const tableJSX = renderTable(currentDataset);
       if (isVerbose) {
-        setHistory([...history, <>Command: view<br />Output: {tableJSX}</>]);
+        setHistory([
+          ...history,
+          <>
+            Command: view
+            <br />
+            Output: {tableJSX}
+          </>,
+        ]);
       } else {
         setHistory([...history, tableJSX]);
       }
@@ -118,7 +142,7 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
       const column = args[1];
       const value = args.slice(2).join(" ");
       if (isVerbose) {
-        searchDataset(column, value, true); 
+        searchDataset(column, value, true);
       } else {
         searchDataset(column, value);
       }
@@ -142,10 +166,7 @@ export function REPLInput({ history, setHistory, mode, switchMode, setCurrentDat
       <button onClick={() => handleSubmit(commandString)}>
         Submit Command
       </button>
-      <div>
-        Commands submitted: {count}
-      </div>
+      <div>Commands submitted: {count}</div>
     </div>
   );
 }
-
